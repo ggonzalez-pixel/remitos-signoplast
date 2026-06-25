@@ -387,6 +387,9 @@ const HOY=new Date().toISOString().split('T')[0];
 let remitos=[],choferes=[],vehiculos=[];
 let firmaId=null,alertaId=null,editId=null;
 let editAbmTipo=null,editAbmIdx=null;
+// Variables de operador - declaradas globalmente
+var operadorActual='';
+var opSeleccionado='';
 
 function getCfg(){return{key:localStorage.getItem('sp_jb_key')||'',bin:localStorage.getItem('sp_jb_bin')||''};}
 function setCfg(k,b){localStorage.setItem('sp_jb_key',k);localStorage.setItem('sp_jb_bin',b);}
@@ -781,9 +784,6 @@ initOperador();
 // Cerrar modales al hacer clic fuera - EXCEPTO formularios de carga
 
 // ─── OPERADORES ────────────────────────────────────────────────
-let operadorActual = '';
-let opSeleccionado = '';
-
 function initOperador(){
   const saved = localStorage.getItem('sp_operador');
   if(saved){
