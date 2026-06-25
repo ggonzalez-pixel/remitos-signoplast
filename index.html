@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Remitos — Signo Plast S.A.</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f5f5f3;--bg3:#eeede9;
+  --text:#1a1a18;--text2:#6b6b67;--text3:#9b9b96;
+  --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+  --blue-bg:#e6f1fb;--blue-text:#0c447c;--blue-border:#378add;
+  --danger-bg:#fcebeb;--danger-text:#791f1f;--danger-border:#e24b4a;
+  --ok-bg:#e1f5ee;--ok-text:#085041;--ok-border:#1d9e75;
+  --warn-bg:#faeeda;--warn-text:#633806;--warn-border:#ef9f27;
+  --radius:8px;--radius-lg:12px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg2);color:var(--text);font-size:14px;min-height:100vh}
+.topbar{background:var(--bg);border-bottom:0.5px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.topbar-logo{width:36px;height:36px;background:#1a3a5c;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.topbar-brand h1{font-size:16px;font-weight:600}
+.topbar-brand span{font-size:12px;color:var(--text2)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.sync-status{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:5px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3)}
+.sync-dot.ok{background:#1d9e75}
+.sync-dot.err{background:#e24b4a}
+.sync-dot.loading{background:#ef9f27;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.config-banner{background:#1a3a5c;color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.config-banner p{font-size:13px;line-height:1.5}
+.config-banner a{color:#85b7eb;text-decoration:underline}
+.config-banner .btn-config{background:#fff;color:#1a3a5c;border:none;border-radius:var(--radius);padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.container{max-width:1150px;margin:0 auto;padding:24px 16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px}
+.stat-label{font-size:12px;color:var(--text2);margin-bottom:6px}
+.stat-val{font-size:28px;font-weight:600}
+.stat-val.total{color:var(--text)}
+.stat-val.ok{color:#0f6e56}
+.stat-val.pend{color:#ba7517}
+.stat-val.alerta{color:#a32d2d}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.section-title{font-size:15px;font-weight:600}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input[type=text]{flex:1;min-width:180px;border:0.5px solid var(--border2);border-radius:var(--radius);padding:7px 12px;font-size:13px;background:var(--bg);color:var(--text);outline:none}
+.toolbar input[type=text]:focus{border-color:var(--blue-border)}
+.toolbar select{border:0.5px solid var(--border2);border-radius:var(--radius);padding:7px 10px;font-size:13px;background:var(--bg);color:var(--text);outline:none;cursor:pointer;min-width:150px}
+.btn{border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:13px;padding:7px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:background 0.15s;font-family:inherit}
+.btn:hover{background:var(--bg2)}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:#1a3a5c;border-color:#1a3a5c;color:#fff}
+.btn-primary:hover{background:#14304e}
+.btn-sm{padding:4px 9px;font-size:12px}
+.btn-danger{border-color:var(--danger-border);color:var(--danger-text);background:var(--bg)}
+.btn-danger:hover{background:var(--danger-bg)}
+.btn-success{border-color:var(--ok-border);color:var(--ok-text)}
+.btn-success:hover{background:var(--ok-bg)}
+.btn-alerta{background:#ef9f27;border-color:#d4880f;color:#fff;font-weight:600}
+.btn-alerta:hover{background:#d4880f}
+.table-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--bg2);border-bottom:0.5px solid var(--border)}
+th{padding:10px 12px;text-align:left;font-weight:500;font-size:12px;color:var(--text2);white-space:nowrap}
+td{padding:10px 12px;border-bottom:0.5px solid var(--border);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafaf8}
+.td-mono{font-family:'Courier New',monospace;font-size:12px;font-weight:600}
+.td-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.badge-ok{background:var(--ok-bg);color:#085041}
+.badge-pend{background:var(--warn-bg);color:#633806}
+.badge-alerta{background:var(--danger-bg);color:#791f1f}
+.badge-vencido{background:#f4c0d1;color:#72243e}
+.empty{text-align:center;padding:60px 20px;color:var(--text2)}
+.empty i{font-size:40px;display:block;margin-bottom:12px;color:var(--text3)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg);border-radius:var(--radius-lg);border:0.5px solid var(--border);width:540px;max-width:100%;padding:24px;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:20px;padding:4px;border-radius:6px;line-height:1}
+.modal-close:hover{background:var(--bg2)}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:20px;padding-right:28px}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500}
+.form-row input[type=text],.form-row input[type=date],.form-row select,.form-row textarea{width:100%;border:0.5px solid var(--border2);border-radius:var(--radius);padding:8px 12px;font-size:13px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;transition:border-color 0.15s}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--blue-border)}
+.form-row input.error,.form-row select.error{border-color:var(--danger-border);background:#fff8f8}
+.form-row textarea{min-height:70px;resize:vertical}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;border-top:0.5px solid var(--border);padding-top:16px}
+.info-box{background:var(--bg2);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--text2);line-height:1.6}
+.info-box strong{color:var(--text)}
+.req{color:var(--danger-text)}
+.field-error{font-size:11px;color:var(--danger-text);margin-top:3px;display:none}
+.field-error.show{display:block}
+hr.sep{border:none;border-top:0.5px solid var(--border);margin:14px 0}
+.detail-row{margin-bottom:14px}
+.detail-label{font-size:11px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
+.detail-val{font-size:14px;color:var(--text)}
+.abm-list{border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;max-height:220px;overflow-y:auto}
+.abm-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:0.5px solid var(--border);font-size:13px}
+.abm-item:last-child{border-bottom:none}
+.abm-item:hover{background:var(--bg2)}
+.abm-item-name{flex:1}
+.abm-actions{display:flex;gap:4px}
+.abm-add-row{display:flex;gap:8px}
+.abm-add-row input{flex:1;border:0.5px solid var(--border2);border-radius:var(--radius);padding:7px 12px;font-size:13px;outline:none;font-family:inherit}
+.abm-add-row input:focus{border-color:var(--blue-border)}
+.tab-bar{display:flex;border-bottom:0.5px solid var(--border);margin-bottom:20px}
+.tab-btn{padding:10px 18px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.15s;font-family:inherit}
+.tab-btn.active{color:#1a3a5c;border-bottom-color:#1a3a5c}
+.config-input{width:100%;border:0.5px solid var(--border2);border-radius:var(--radius);padding:8px 12px;font-size:13px;font-family:'Courier New',monospace;background:var(--bg);color:var(--text);outline:none;margin-top:5px}
+.config-input:focus{border-color:var(--blue-border)}
+.help-text{font-size:12px;color:var(--text2);margin-top:5px;line-height:1.5}
+.help-text a{color:var(--blue-text)}
+@media(max-width:750px){.stats{grid-template-columns:repeat(2,1fr)}.form-2col{grid-template-columns:1fr}}
+@media print{.topbar,.toolbar,.section-header .btn,.config-banner{display:none!important}.container{padding:0}}
+
+/* Modal operador */
+.modal-operador-bg{position:fixed;inset:0;background:rgba(15,25,40,0.85);z-index:500;display:flex;align-items:center;justify-content:center;}
+.modal-operador{background:#fff;border-radius:16px;padding:36px 32px;width:420px;max-width:95vw;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.modal-operador .logo-op{width:56px;height:56px;background:#1a3a5c;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;margin:0 auto 16px;}
+.modal-operador h2{font-size:20px;font-weight:600;margin-bottom:6px;}
+.modal-operador p{font-size:13px;color:var(--text2);margin-bottom:24px;}
+.op-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.op-btn{border:1.5px solid var(--border2);border-radius:10px;padding:14px 10px;cursor:pointer;background:#fff;font-size:13px;font-weight:500;color:var(--text);transition:all 0.15s;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.op-btn i{font-size:22px;color:var(--text2);}
+.op-btn:hover{border-color:#1a3a5c;background:#f0f4f9;color:#1a3a5c;}
+.op-btn:hover i{color:#1a3a5c;}
+.op-btn.selected{border-color:#1a3a5c;background:#e6f1fb;color:#1a3a5c;font-weight:600;}
+.op-btn.selected i{color:#1a3a5c;}
+.op-nuevo{margin-top:4px;}
+.op-nuevo input{width:100%;border:0.5px solid var(--border2);border-radius:var(--radius);padding:8px 12px;font-size:13px;outline:none;font-family:inherit;}
+.op-nuevo input:focus{border-color:var(--blue-border);}
+.badge-operador{background:#1a3a5c;color:#fff;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:5px;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<!-- MODAL OPERADOR -->
+<div class="modal-operador-bg" id="modalOperador" style="display:none">
+  <div class="modal-operador">
+    <div class="logo-op"><i class="ti ti-shield-lock"></i></div>
+    <h2>Control de Remitos</h2>
+    <p>Signo Plast S.A. &mdash; &iquest;Qui&eacute;n est&aacute; de guardia?</p>
+    <div class="op-grid" id="op-grid"></div>
+    <div class="op-nuevo" id="op-nuevo-div" style="display:none;margin-bottom:16px">
+      <input type="text" id="op-nuevo-input" placeholder="Ingresar nombre completo..." onkeydown="if(event.key==='Enter')confirmarNuevoOp()">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:10px" onclick="confirmarOperador()"><i class="ti ti-check"></i> Confirmar y entrar</button>
+    <div style="margin-top:14px"><button class="btn btn-sm" onclick="mostrarNuevoOp()"><i class="ti ti-user-plus"></i> No estoy en la lista</button></div>
+  </div>
+</div>
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo"><i class="ti ti-file-description"></i></div>
+    <div><h1>Control de Remitos</h1><span>Signo Plast S.A.</span></div>
+  </div>
+  <div class="topbar-right">
+    <div id="badge-op" style="display:none"></div>
+    <div class="sync-status" id="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Iniciando...</span></div>
+    <button class="btn btn-sm" onclick="cambiarOperador()" title="Cambiar operador"><i class="ti ti-user-circle"></i> <span id="lbl-operador">Operador</span></button>
+    <button class="btn btn-sm" onclick="abrirAbm()"><i class="ti ti-users"></i> Choferes/Vehículos</button>
+    <button class="btn btn-sm" onclick="abrirConfig()"><i class="ti ti-settings"></i> Configurar</button>
+  </div>
+</div>
+<div class="config-banner" id="config-banner" style="display:none">
+  <p><i class="ti ti-alert-circle"></i> <strong>Configuración necesaria:</strong> Ingresá tu API Key y Bin ID de JSONBin.io. <a href="https://jsonbin.io" target="_blank">Crear cuenta gratis</a></p>
+  <button class="btn-config" onclick="abrirConfig()">Configurar ahora</button>
+</div>
+<div class="container">
+  <div class="stats">
+    <div class="stat"><div class="stat-label"><i class="ti ti-files"></i> Total remitos</div><div class="stat-val total" id="st-total">0</div></div>
+    <div class="stat"><div class="stat-label"><i class="ti ti-circle-check"></i> Devueltos firmados</div><div class="stat-val ok" id="st-ok">0</div></div>
+    <div class="stat"><div class="stat-label"><i class="ti ti-clock"></i> Pendientes</div><div class="stat-val pend" id="st-pend">0</div></div>
+    <div class="stat"><div class="stat-label"><i class="ti ti-alert-triangle"></i> Alertas / Vencidos</div><div class="stat-val alerta" id="st-alerta">0</div></div>
+  </div>
+  <div class="section-header">
+    <div class="section-title">Remitos registrados</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="cargarDatos()"><i class="ti ti-refresh"></i> Actualizar</button>
+      <button class="btn btn-primary" onclick="abrirNuevo()"><i class="ti ti-plus"></i> Nuevo remito</button>
+    </div>
+  </div>
+  <div class="toolbar">
+    <input type="text" id="buscar" placeholder="Buscar remito, cliente, chofer..." oninput="renderTabla()">
+    <select id="filtroEst" onchange="renderTabla()">
+      <option value="">Todos los estados</option>
+      <option value="Pendiente">Pendientes</option>
+      <option value="Devuelto">Devueltos firmados</option>
+      <option value="Alerta">Con alerta</option>
+      <option value="Vencido">Vencidos sin firma</option>
+    </select>
+    <select id="filtroChof" onchange="renderTabla()"><option value="">Todos los choferes</option></select>
+    <button class="btn" onclick="exportarExcel()"><i class="ti ti-file-spreadsheet"></i> Exportar Excel</button>
+    <button class="btn" onclick="exportarCSV()"><i class="ti ti-download"></i> Exportar CSV</button>
+    <button class="btn" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir</button>
+  </div>
+  <div class="table-card">
+    <table>
+      <thead><tr>
+        <th style="width:130px">N° Remito</th>
+        <th style="width:95px">Fecha salida</th>
+        <th style="width:150px">Chofer / Vehículo</th>
+        <th>Cliente</th>
+        <th style="width:125px">Estado</th>
+        <th style="width:200px">Acciones</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none"><i class="ti ti-mood-empty"></i><p>No hay remitos que coincidan</p></div>
+  </div>
+</div>
+
+<!-- MODAL CONFIG -->
+<div class="modal-bg" id="modalConfig">
+  <div class="modal" style="width:560px">
+    <button class="modal-close" onclick="cerrar('modalConfig')"><i class="ti ti-x"></i></button>
+    <h3>Configuracion de base de datos</h3>
+    <div style="background:var(--blue-bg);border-radius:var(--radius);padding:14px;margin-bottom:20px;font-size:13px;color:var(--blue-text);line-height:1.7">
+      1. Crear cuenta en <a href="https://jsonbin.io" target="_blank" style="color:var(--blue-text)"><strong>jsonbin.io</strong></a><br>
+      2. Copiar <strong>Master Key</strong> de API Keys<br>
+      3. Crear Bin con <code style="background:rgba(0,0,0,0.08);padding:1px 5px;border-radius:4px">{"remitos":[],"choferes":[],"vehiculos":[]}</code><br>
+      4. Copiar el <strong>Bin ID</strong>
+    </div>
+    <div class="form-row"><label>Master Key <span class="req">*</span></label><input class="config-input" type="password" id="cfg-key" placeholder="$2a$10$..."><div class="help-text">Se guarda solo en esta PC.</div></div>
+    <div class="form-row"><label>Bin ID <span class="req">*</span></label><input class="config-input" type="text" id="cfg-bin" placeholder="67a1b2c3..."><div class="help-text">El mismo en todas las PCs.</div></div>
+    <div id="cfg-error" style="display:none;background:var(--danger-bg);color:var(--danger-text);border-radius:var(--radius);padding:10px 14px;font-size:13px;margin-top:8px"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrar('modalConfig')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-probar" onclick="probarYGuardar()"><i class="ti ti-plug"></i> Probar y guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ABM -->
+<div class="modal-bg" id="modalAbm" onclick="void(0)">
+  <div class="modal" style="width:560px">
+    <button class="modal-close" onclick="cerrar('modalAbm')"><i class="ti ti-x"></i></button>
+    <h3>Gestion de Choferes y Vehiculos</h3>
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-chof" onclick="cambiarTab('choferes')">Choferes</button>
+      <button class="tab-btn" id="tab-veh" onclick="cambiarTab('vehiculos')">Vehiculos</button>
+    </div>
+    <div id="panel-choferes">
+      <div class="abm-list" id="lista-choferes"></div>
+      <div class="abm-add-row">
+        <input type="text" id="nuevo-chofer" placeholder="Apellido, Nombre" onkeydown="if(event.key==='Enter')agregarChofer()">
+        <button class="btn btn-primary" onclick="agregarChofer()"><i class="ti ti-plus"></i> Agregar</button>
+      </div>
+    </div>
+    <div id="panel-vehiculos" style="display:none">
+      <div class="abm-list" id="lista-vehiculos"></div>
+      <div class="abm-add-row">
+        <input type="text" id="nuevo-vehiculo" placeholder="Ej: ABC 123 DE - Ford Transit" onkeydown="if(event.key==='Enter')agregarVehiculo()">
+        <button class="btn btn-primary" onclick="agregarVehiculo()"><i class="ti ti-plus"></i> Agregar</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="cerrar('modalAbm')"><i class="ti ti-check"></i> Listo</button></div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR ITEM ABM -->
+<div class="modal-bg" id="modalEditAbm" onclick="void(0)">
+  <div class="modal" style="width:420px">
+    <button class="modal-close" onclick="cerrar('modalEditAbm')"><i class="ti ti-x"></i></button>
+    <h3 id="editAbmTitulo">Editar</h3>
+    <div class="form-row"><label id="editAbmLabel">Nombre</label><input type="text" id="editAbmVal"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrar('modalEditAbm')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarEditAbm()"><i class="ti ti-device-floppy"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO/EDITAR REMITO -->
+<div class="modal-bg" id="modalNuevo" onclick="void(0)">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrar('modalNuevo')"><i class="ti ti-x"></i></button>
+    <h3 id="modalTitulo">Registrar nuevo remito</h3>
+    <div class="form-2col">
+      <div class="form-row">
+        <label>N de remito <span class="req">*</span></label>
+        <input type="text" id="f-num" placeholder="0001-00012345">
+        <div class="field-error" id="err-num">Campo obligatorio</div>
+      </div>
+      <div class="form-row">
+        <label>Fecha de salida <span class="req">*</span></label>
+        <input type="date" id="f-fecha">
+        <div class="field-error" id="err-fecha">Campo obligatorio</div>
+      </div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row">
+        <label>Chofer <span class="req">*</span></label>
+        <select id="f-chofer"><option value="">Seleccionar chofer...</option></select>
+        <div class="field-error" id="err-chofer">Seleccionar un chofer</div>
+      </div>
+      <div class="form-row">
+        <label>Vehiculo <span class="req">*</span></label>
+        <select id="f-vehiculo"><option value="">Seleccionar vehiculo...</option></select>
+        <div class="field-error" id="err-vehiculo">Seleccionar un vehiculo</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Cliente <span class="req">*</span></label>
+      <input type="text" id="f-cliente" placeholder="Razon social">
+      <div class="field-error" id="err-cliente">Campo obligatorio</div>
+    </div>
+    <div class="form-row">
+      <label>Direccion de entrega <span class="req">*</span></label>
+      <input type="text" id="f-dir" placeholder="Calle, numero, localidad">
+      <div class="field-error" id="err-dir">Campo obligatorio</div>
+    </div>
+    <div class="form-row">
+      <label>Observaciones <span style="color:var(--text3);font-weight:400">(opcional)</span></label>
+      <textarea id="f-obs" placeholder="Bultos, instrucciones especiales..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrar('modalNuevo')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-guardar" onclick="guardarRemito()"><i class="ti ti-device-floppy"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FIRMA -->
+<div class="modal-bg" id="modalFirma">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrar('modalFirma')"><i class="ti ti-x"></i></button>
+    <h3>Registrar devolucion con firma</h3>
+    <div class="info-box" id="detalle-firma"></div>
+    <div class="form-row"><label>Fecha en que volvio firmado <span class="req">*</span></label><input type="date" id="f-fdev"></div>
+    <div class="form-row"><label>Firmado por</label><input type="text" id="f-recibe" placeholder="Nombre de quien firmo en el cliente"></div>
+    <div class="form-row"><label>Observaciones</label><textarea id="f-obsdev" placeholder="Ej: con sello, diferencia de bultos..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrar('modalFirma')">Cancelar</button>
+      <button class="btn btn-success" onclick="confirmarFirma()"><i class="ti ti-signature"></i> Confirmar firma recibida</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ALERTA -->
+<div class="modal-bg" id="modalAlerta">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrar('modalAlerta')"><i class="ti ti-x"></i></button>
+    <h3 style="color:var(--warn-text)"><i class="ti ti-alert-triangle" style="vertical-align:-2px;margin-right:6px"></i>Registrar alerta / incidencia</h3>
+    <div class="info-box" id="detalle-alerta"></div>
+    <div class="form-row">
+      <label>Tipo de problema <span class="req">*</span></label>
+      <select id="f-tipoalerta">
+        <option value="">Seleccionar...</option>
+        <option>No se pudo entregar - cliente ausente</option>
+        <option>Cliente rechazo la mercaderia</option>
+        <option>Entregado sin firma</option>
+        <option>Remito extraviado</option>
+        <option>Entrega parcial</option>
+        <option>Otro</option>
+      </select>
+    </div>
+    <div class="form-row"><label>Detalle <span class="req">*</span></label><textarea id="f-detallealer" placeholder="Describir la situacion..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="cerrar('modalAlerta')">Cancelar</button>
+      <button class="btn btn-alerta" onclick="confirmarAlerta()"><i class="ti ti-alert-triangle"></i> Registrar alerta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="modal-bg" id="modalDetalle">
+  <div class="modal">
+    <button class="modal-close" onclick="cerrar('modalDetalle')"><i class="ti ti-x"></i></button>
+    <h3>Detalle del remito</h3>
+    <div id="panel-detalle"></div>
+    <div class="modal-footer"><button class="btn" onclick="cerrar('modalDetalle')">Cerrar</button></div>
+  </div>
+</div>
+
+<script>
+const HOY=new Date().toISOString().split('T')[0];
+let remitos=[],choferes=[],vehiculos=[];
+let firmaId=null,alertaId=null,editId=null;
+let editAbmTipo=null,editAbmIdx=null;
+
+function getCfg(){return{key:localStorage.getItem('sp_jb_key')||'',bin:localStorage.getItem('sp_jb_bin')||''};}
+function setCfg(k,b){localStorage.setItem('sp_jb_key',k);localStorage.setItem('sp_jb_bin',b);}
+function configurado(){const{key,bin}=getCfg();return key&&bin;}
+function setSyncStatus(e,m){document.getElementById('sync-dot').className='sync-dot '+e;document.getElementById('sync-label').textContent=m;}
+function fmtFecha(f){if(!f)return'';const[y,m,d]=f.split('-');return d+'/'+m+'/'+y;}
+function fmtHora(d){return d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});}
+function dias(f){return Math.floor((new Date()-new Date(f))/(1000*60*60*24));}
+
+function estadoEf(r){
+  if(r.estado==='Devuelto')return'Devuelto';
+  if(r.estado==='Alerta')return'Alerta';
+  if(dias(r.fecha)>=7)return'Vencido';
+  return'Pendiente';
+}
+function badge(r){
+  const e=estadoEf(r),d=dias(r.fecha);
+  if(e==='Devuelto')return'<span class="badge badge-ok"><i class="ti ti-circle-check"></i> Firmado</span>';
+  if(e==='Alerta')return'<span class="badge badge-alerta"><i class="ti ti-alert-triangle"></i> Alerta</span>';
+  if(e==='Vencido')return'<span class="badge badge-vencido"><i class="ti ti-clock-exclamation"></i> Vencido '+d+'d</span>';
+  return'<span class="badge badge-pend"><i class="ti ti-clock"></i> Pendiente '+d+'d</span>';
+}
+
+async function cargarDatos(){
+  if(!configurado()){document.getElementById('config-banner').style.display='flex';setSyncStatus('err','Sin configurar');renderTabla();return;}
+  const{key,bin}=getCfg();setSyncStatus('loading','Cargando...');
+  try{
+    const r=await fetch('https://api.jsonbin.io/v3/b/'+bin+'/latest',{headers:{'X-Master-Key':key}});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    remitos=data.record.remitos||[];choferes=data.record.choferes||[];vehiculos=data.record.vehiculos||[];
+    setSyncStatus('ok','Sincronizado - '+fmtHora(new Date()));
+    document.getElementById('config-banner').style.display='none';
+  }catch(e){setSyncStatus('err','Error de conexion');}
+  renderTabla();
+}
+
+async function guardarDatos(){
+  if(!configurado())return;
+  const{key,bin}=getCfg();setSyncStatus('loading','Guardando...');
+  try{
+    const r=await fetch('https://api.jsonbin.io/v3/b/'+bin,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':key},body:JSON.stringify({remitos,choferes,vehiculos})});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    setSyncStatus('ok','Guardado - '+fmtHora(new Date()));
+  }catch(e){setSyncStatus('err','Error al guardar');alert('No se pudo guardar. Verificar conexion.');}
+}
+
+function abrirConfig(){
+  const{key,bin}=getCfg();
+  document.getElementById('cfg-key').value=key;
+  document.getElementById('cfg-bin').value=bin;
+  document.getElementById('cfg-error').style.display='none';
+  abrir('modalConfig');
+}
+async function probarYGuardar(){
+  const key=document.getElementById('cfg-key').value.trim();
+  const bin=document.getElementById('cfg-bin').value.trim();
+  const errDiv=document.getElementById('cfg-error');
+  const btn=document.getElementById('btn-probar');
+  if(!key||!bin){errDiv.style.display='block';errDiv.textContent='Completar ambos campos.';return;}
+  btn.disabled=true;btn.innerHTML='<i class="ti ti-loader-2"></i> Probando...';errDiv.style.display='none';
+  try{
+    const r=await fetch('https://api.jsonbin.io/v3/b/'+bin+'/latest',{headers:{'X-Master-Key':key}});
+    if(!r.ok){const d=await r.json();throw new Error(d.message||'Error '+r.status);}
+    const data=await r.json();
+    if(!data.record.remitos){
+      await fetch('https://api.jsonbin.io/v3/b/'+bin,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':key},body:JSON.stringify({remitos:[],choferes:[],vehiculos:[]})});
+    }else{
+      remitos=data.record.remitos||[];choferes=data.record.choferes||[];vehiculos=data.record.vehiculos||[];
+    }
+    setCfg(key,bin);cerrar('modalConfig');cargarDatos();
+  }catch(e){errDiv.style.display='block';errDiv.textContent='No se pudo conectar: '+e.message;}
+  finally{btn.disabled=false;btn.innerHTML='<i class="ti ti-plug"></i> Probar y guardar';}
+}
+
+// ABM
+function abrirAbm(){cambiarTab('choferes');renderAbm();abrir('modalAbm');}
+function cambiarTab(tab){
+  document.getElementById('tab-chof').className='tab-btn'+(tab==='choferes'?' active':'');
+  document.getElementById('tab-veh').className='tab-btn'+(tab==='vehiculos'?' active':'');
+  document.getElementById('panel-choferes').style.display=tab==='choferes'?'':'none';
+  document.getElementById('panel-vehiculos').style.display=tab==='vehiculos'?'':'none';
+}
+function renderAbm(){
+  const lc=document.getElementById('lista-choferes');
+  lc.innerHTML=choferes.length===0?'<div class="abm-item" style="color:var(--text3);justify-content:center">No hay choferes cargados</div>':
+    choferes.map((c,i)=>'<div class="abm-item"><span class="abm-item-name">'+c+'</span><div class="abm-actions"><button class="btn btn-sm" onclick="editarAbm(\'choferes\','+i+')" title="Editar"><i class="ti ti-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="bajaAbm(\'choferes\','+i+')" title="Dar de baja"><i class="ti ti-trash"></i></button></div></div>').join('');
+  const lv=document.getElementById('lista-vehiculos');
+  lv.innerHTML=vehiculos.length===0?'<div class="abm-item" style="color:var(--text3);justify-content:center">No hay vehiculos cargados</div>':
+    vehiculos.map((v,i)=>'<div class="abm-item"><span class="abm-item-name">'+v+'</span><div class="abm-actions"><button class="btn btn-sm" onclick="editarAbm(\'vehiculos\','+i+')" title="Editar"><i class="ti ti-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="bajaAbm(\'vehiculos\','+i+')" title="Dar de baja"><i class="ti ti-trash"></i></button></div></div>').join('');
+}
+async function agregarChofer(){
+  const val=document.getElementById('nuevo-chofer').value.trim();
+  if(!val)return;
+  if(choferes.includes(val)){alert('Ya existe ese chofer.');return;}
+  choferes.push(val);choferes.sort();
+  document.getElementById('nuevo-chofer').value='';
+  await guardarDatos();renderAbm();poblarSelectores();
+}
+async function agregarVehiculo(){
+  const val=document.getElementById('nuevo-vehiculo').value.trim();
+  if(!val)return;
+  if(vehiculos.includes(val)){alert('Ya existe ese vehiculo.');return;}
+  vehiculos.push(val);vehiculos.sort();
+  document.getElementById('nuevo-vehiculo').value='';
+  await guardarDatos();renderAbm();poblarSelectores();
+}
+function editarAbm(tipo,idx){
+  editAbmTipo=tipo;editAbmIdx=idx;
+  const lista=tipo==='choferes'?choferes:vehiculos;
+  document.getElementById('editAbmTitulo').textContent=tipo==='choferes'?'Editar chofer':'Editar vehiculo';
+  document.getElementById('editAbmLabel').textContent=tipo==='choferes'?'Nombre del chofer':'Vehiculo';
+  document.getElementById('editAbmVal').value=lista[idx];
+  abrir('modalEditAbm');
+}
+async function confirmarEditAbm(){
+  const val=document.getElementById('editAbmVal').value.trim();
+  if(!val)return;
+  const lista=editAbmTipo==='choferes'?choferes:vehiculos;
+  lista[editAbmIdx]=val;lista.sort();
+  await guardarDatos();cerrar('modalEditAbm');renderAbm();poblarSelectores();
+}
+async function bajaAbm(tipo,idx){
+  const lista=tipo==='choferes'?choferes:vehiculos;
+  if(!confirm('Dar de baja "'+lista[idx]+'"?'))return;
+  if(tipo==='choferes')choferes.splice(idx,1);else vehiculos.splice(idx,1);
+  await guardarDatos();renderAbm();poblarSelectores();
+}
+function poblarSelectores(){
+  const sc=document.getElementById('f-chofer');
+  const sv=document.getElementById('f-vehiculo');
+  const vc=sc.value,vv=sv.value;
+  sc.innerHTML='<option value="">Seleccionar chofer...</option>'+choferes.map(c=>'<option value="'+c+'"'+(c===vc?' selected':'')+'>'+c+'</option>').join('');
+  sv.innerHTML='<option value="">Seleccionar vehiculo...</option>'+vehiculos.map(v=>'<option value="'+v+'"'+(v===vv?' selected':'')+'>'+v+'</option>').join('');
+}
+
+// Renderizado
+function renderTabla(){
+  const bus=document.getElementById('buscar').value.toLowerCase();
+  const est=document.getElementById('filtroEst').value;
+  const chof=document.getElementById('filtroChof').value;
+  let lista=remitos.filter(r=>{
+    const txt=(r.num+r.chofer+r.cliente+r.vehiculo+r.dir).toLowerCase();
+    if(bus&&!txt.includes(bus))return false;
+    if(chof&&r.chofer!==chof)return false;
+    if(est&&estadoEf(r)!==est)return false;
+    return true;
+  });
+  lista.sort((a,b)=>{
+    const ord={Vencido:0,Alerta:1,Pendiente:2,Devuelto:3};
+    const da=ord[estadoEf(a)]??9,db=ord[estadoEf(b)]??9;
+    if(da!==db)return da-db;
+    return b.fecha.localeCompare(a.fecha);
+  });
+  const tbody=document.getElementById('tbody');
+  const empty=document.getElementById('empty');
+  if(!lista.length){tbody.innerHTML='';empty.style.display='block';}
+  else{
+    empty.style.display='none';
+    tbody.innerHTML=lista.map(r=>{
+      const e=estadoEf(r);
+      const puedeFirema=e!=='Devuelto';
+      const puedeAlerta=e==='Pendiente'||e==='Vencido';
+      return '<tr><td><span class="td-mono">'+r.num+'</span></td><td>'+fmtFecha(r.fecha)+'</td><td>'+r.chofer+'<div class="td-sub">'+(r.vehiculo||'')+'</div></td><td title="'+r.cliente+'">'+r.cliente+'</td><td>'+badge(r)+'</td><td>'+
+        '<button class="btn btn-sm" onclick="verDetalle(\''+r.id+'\')" title="Ver detalle"><i class="ti ti-eye"></i></button> '+
+        '<button class="btn btn-sm" onclick="editarRemito(\''+r.id+'\')" title="Editar"><i class="ti ti-pencil"></i></button> '+
+        (puedeFirema?'<button class="btn btn-sm btn-success" onclick="abrirFirma(\''+r.id+'\')" title="Registrar firma"><i class="ti ti-signature"></i></button> ':'')+
+        (puedeAlerta?'<button class="btn btn-sm btn-alerta" onclick="abrirAlerta(\''+r.id+'\')" title="Registrar alerta"><i class="ti ti-alert-triangle"></i></button> ':'')+
+        '<button class="btn btn-sm btn-danger" onclick="eliminarRemito(\''+r.id+'\')" title="Eliminar"><i class="ti ti-trash"></i></button>'+
+        '</td></tr>';
+    }).join('');
+  }
+  actualizarStats();
+  actualizarFiltroChoferes();
+}
+function actualizarStats(){
+  const total=remitos.length;
+  const ok=remitos.filter(r=>estadoEf(r)==='Devuelto').length;
+  const al=remitos.filter(r=>{const e=estadoEf(r);return e==='Alerta'||e==='Vencido';}).length;
+  document.getElementById('st-total').textContent=total;
+  document.getElementById('st-ok').textContent=ok;
+  document.getElementById('st-pend').textContent=Math.max(0,total-ok-al);
+  document.getElementById('st-alerta').textContent=al;
+}
+function actualizarFiltroChoferes(){
+  const sel=document.getElementById('filtroChof');
+  const actual=sel.value;
+  const todos=[...new Set(remitos.map(r=>r.chofer).filter(Boolean))].sort();
+  sel.innerHTML='<option value="">Todos los choferes</option>'+todos.map(c=>'<option value="'+c+'"'+(c===actual?' selected':'')+'>'+c+'</option>').join('');
+}
+
+// Validacion
+function validarCampo(id,errId,ok){
+  document.getElementById(id).classList.toggle('error',!ok);
+  document.getElementById(errId).classList.toggle('show',!ok);
+  return ok;
+}
+function limpiarValidaciones(){
+  ['f-num','f-fecha','f-chofer','f-vehiculo','f-cliente','f-dir'].forEach(id=>document.getElementById(id).classList.remove('error'));
+  ['err-num','err-fecha','err-chofer','err-vehiculo','err-cliente','err-dir'].forEach(id=>document.getElementById(id).classList.remove('show'));
+}
+
+// CRUD
+function abrirNuevo(){
+  editId=null;
+  document.getElementById('modalTitulo').textContent='Registrar nuevo remito';
+  ['f-num','f-cliente','f-dir','f-obs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-fecha').value=HOY;
+  poblarSelectores();
+  document.getElementById('f-chofer').value='';
+  document.getElementById('f-vehiculo').value='';
+  limpiarValidaciones();
+  abrir('modalNuevo');
+}
+function editarRemito(id){
+  editId=id;
+  const r=remitos.find(x=>x.id===id);
+  document.getElementById('modalTitulo').textContent='Editar remito';
+  document.getElementById('f-num').value=r.num;
+  document.getElementById('f-fecha').value=r.fecha;
+  document.getElementById('f-cliente').value=r.cliente;
+  document.getElementById('f-dir').value=r.dir;
+  document.getElementById('f-obs').value=r.obs||'';
+  poblarSelectores();
+  document.getElementById('f-chofer').value=r.chofer;
+  document.getElementById('f-vehiculo').value=r.vehiculo;
+  limpiarValidaciones();
+  abrir('modalNuevo');
+}
+async function guardarRemito(){
+  const num=document.getElementById('f-num').value.trim();
+  const fecha=document.getElementById('f-fecha').value;
+  const chofer=document.getElementById('f-chofer').value;
+  const vehiculo=document.getElementById('f-vehiculo').value;
+  const cliente=document.getElementById('f-cliente').value.trim();
+  const dir=document.getElementById('f-dir').value.trim();
+  let ok=true;
+  ok=validarCampo('f-num','err-num',num!=='')&&ok;
+  ok=validarCampo('f-fecha','err-fecha',fecha!=='')&&ok;
+  ok=validarCampo('f-chofer','err-chofer',chofer!=='')&&ok;
+  ok=validarCampo('f-vehiculo','err-vehiculo',vehiculo!=='')&&ok;
+  ok=validarCampo('f-cliente','err-cliente',cliente!=='')&&ok;
+  ok=validarCampo('f-dir','err-dir',dir!=='')&&ok;
+  if(!ok)return;
+  if(!editId&&remitos.find(r=>r.num===num)){
+    document.getElementById('f-num').classList.add('error');
+    document.getElementById('err-num').textContent='Ya existe un remito con ese numero';
+    document.getElementById('err-num').classList.add('show');
+    return;
+  }
+  const btn=document.getElementById('btn-guardar');btn.disabled=true;
+  if(editId){
+    const r=remitos.find(x=>x.id===editId);
+    var ahoraE=new Date().toLocaleString('es-AR');var hist=r.historial||[];hist.push({accion:'Modificado',op:getOperador(),ts:ahoraE});Object.assign(r,{num,fecha,chofer,vehiculo,cliente,dir,obs:document.getElementById('f-obs').value.trim(),modificadoPor:getOperador(),modificadoTs:ahoraE,historial:hist});
+  }else{
+    var ahora=new Date().toLocaleString('es-AR');remitos.push({id:'r'+Date.now(),num,fecha,chofer,vehiculo,cliente,dir,obs:document.getElementById('f-obs').value.trim(),estado:'Pendiente',fdev:'',recibe:'',obsdev:'',fechaReg:HOY,creadoPor:getOperador(),creadoTs:ahora,historial:[{accion:'Creado',op:getOperador(),ts:ahora}]});
+  }
+  await guardarDatos();renderTabla();cerrar('modalNuevo');btn.disabled=false;
+}
+
+function abrirFirma(id){
+  firmaId=id;
+  const r=remitos.find(x=>x.id===id);
+  document.getElementById('detalle-firma').innerHTML='<strong>'+r.num+'</strong> — '+r.cliente+'<br>Salida: '+fmtFecha(r.fecha)+' | Chofer: '+r.chofer;
+  document.getElementById('f-fdev').value=HOY;
+  document.getElementById('f-recibe').value='';
+  document.getElementById('f-obsdev').value='';
+  abrir('modalFirma');
+}
+async function confirmarFirma(){
+  const fdev=document.getElementById('f-fdev').value;
+  if(!fdev){alert('Ingresar la fecha de devolucion.');return;}
+  const r=remitos.find(x=>x.id===firmaId);
+  var ahoraF=new Date().toLocaleString('es-AR');var histF=r.historial||[];histF.push({accion:'Firma registrada',op:getOperador(),ts:ahoraF});r.estado='Devuelto';r.fdev=fdev;r.recibe=document.getElementById('f-recibe').value.trim();r.obsdev=document.getElementById('f-obsdev').value.trim();r.firmadoRegistradoPor=getOperador();r.historial=histF;
+  await guardarDatos();renderTabla();cerrar('modalFirma');
+}
+function abrirAlerta(id){
+  alertaId=id;
+  const r=remitos.find(x=>x.id===id);
+  document.getElementById('detalle-alerta').innerHTML='<strong>'+r.num+'</strong> — '+r.cliente+'<br>Salida: '+fmtFecha(r.fecha)+' | Chofer: '+r.chofer;
+  document.getElementById('f-tipoalerta').value='';
+  document.getElementById('f-detallealer').value='';
+  abrir('modalAlerta');
+}
+async function confirmarAlerta(){
+  const tipo=document.getElementById('f-tipoalerta').value;
+  const det=document.getElementById('f-detallealer').value.trim();
+  if(!tipo||!det){alert('Completar tipo y detalle.');return;}
+  const r=remitos.find(x=>x.id===alertaId);
+  var ahoraA=new Date().toLocaleString('es-AR');var histA=r.historial||[];histA.push({accion:'Alerta registrada',op:getOperador(),ts:ahoraA});r.estado='Alerta';r.obsdev=tipo+': '+det;r.alertaRegistradaPor=getOperador();r.historial=histA;
+  await guardarDatos();renderTabla();cerrar('modalAlerta');
+}
+async function eliminarRemito(id){
+  const r=remitos.find(x=>x.id===id);
+  if(!confirm('Eliminar remito '+r.num+' - '+r.cliente+'?\n\nEsta accion no se puede deshacer.'))return;
+  remitos=remitos.filter(x=>x.id!==id);
+  await guardarDatos();renderTabla();
+}
+function verDetalle(id){
+  const r=remitos.find(x=>x.id===id);
+  const e=estadoEf(r);
+  let html='<div style="margin-bottom:12px">'+badge(r)+'</div>';
+  html+='<div class="detail-row"><div class="detail-label">N de remito</div><div class="detail-val" style="font-family:monospace;font-weight:700;font-size:15px">'+r.num+'</div></div>';
+  html+='<div class="detail-row"><div class="detail-label">Fecha de salida</div><div class="detail-val">'+fmtFecha(r.fecha)+'</div></div>';
+  html+='<div class="detail-row"><div class="detail-label">Chofer</div><div class="detail-val">'+r.chofer+'</div></div>';
+  html+='<div class="detail-row"><div class="detail-label">Vehiculo</div><div class="detail-val">'+(r.vehiculo||'')+'</div></div>';
+  html+='<div class="detail-row"><div class="detail-label">Cliente</div><div class="detail-val">'+r.cliente+'</div></div>';
+  html+='<div class="detail-row"><div class="detail-label">Direccion</div><div class="detail-val">'+(r.dir||'')+'</div></div>';
+  if(r.obs)html+='<div class="detail-row"><div class="detail-label">Observaciones</div><div class="detail-val">'+r.obs+'</div></div>';
+  if(e==='Devuelto'){
+    html+='<hr class="sep"><div class="detail-row"><div class="detail-label">Fecha devolucion</div><div class="detail-val">'+fmtFecha(r.fdev)+'</div></div>';
+    html+='<div class="detail-row"><div class="detail-label">Firmado por</div><div class="detail-val">'+(r.recibe||'')+'</div></div>';
+    if(r.obsdev)html+='<div class="detail-row"><div class="detail-label">Observaciones</div><div class="detail-val">'+r.obsdev+'</div></div>';
+  }
+  if(e==='Alerta'){
+    html+='<hr class="sep"><div class="detail-row"><div class="detail-label">Motivo de alerta</div><div class="detail-val" style="color:var(--danger-text)">'+(r.obsdev||'')+'</div></div>';
+  }
+  // Auditoría
+  html+='<hr class="sep">';
+  html+='<div class="detail-label" style="margin-bottom:8px">Historial de acciones</div>';
+  if(r.creadoPor) html+='<div style="font-size:12px;color:var(--text2);margin-bottom:4px"><i class="ti ti-user" style="font-size:11px"></i> Creado por <strong>'+r.creadoPor+'</strong> el '+r.fechaReg+(r.creadoTs?' a las '+r.creadoTs.split(',')[1]||'':'')+'</div>';
+  if(r.modificadoPor) html+='<div style="font-size:12px;color:var(--text2);margin-bottom:4px"><i class="ti ti-pencil" style="font-size:11px"></i> Ultima modificacion por <strong>'+r.modificadoPor+'</strong> &mdash; '+r.modificadoTs+'</div>';
+  if(r.firmadoRegistradoPor) html+='<div style="font-size:12px;color:var(--ok-text);margin-bottom:4px"><i class="ti ti-signature" style="font-size:11px"></i> Firma registrada por <strong>'+r.firmadoRegistradoPor+'</strong></div>';
+  if(r.alertaRegistradaPor) html+='<div style="font-size:12px;color:var(--danger-text);margin-bottom:4px"><i class="ti ti-alert-triangle" style="font-size:11px"></i> Alerta cargada por <strong>'+r.alertaRegistradaPor+'</strong></div>';
+  if(r.historial&&r.historial.length>1){
+    html+='<div style="margin-top:8px;border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">';
+    html+=r.historial.map(function(h){return '<div style="font-size:12px;padding:7px 12px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between"><span><strong>'+h.op+'</strong> &mdash; '+h.accion+'</span><span style="color:var(--text3)">'+h.ts+'</span></div>';}).join('');
+    html+='</div>';
+  }
+  document.getElementById('panel-detalle').innerHTML=html;
+  abrir('modalDetalle');
+}
+function exportarExcel(){
+  const wb=XLSX.utils.book_new();
+  const encabezados=["N Remito","Fecha salida","Chofer","Vehiculo","Cliente","Direccion","Observaciones","Estado","Dias sin firma","Fecha devolucion","Firmado por","Obs devolucion"];
+  const filas=remitos.map(r=>[
+    r.num,
+    fmtFecha(r.fecha),
+    r.chofer,
+    r.vehiculo||"",
+    r.cliente,
+    r.dir||"",
+    r.obs||"",
+    estadoEf(r),
+    estadoEf(r)==="Devuelto"?"":dias(r.fecha),
+    fmtFecha(r.fdev),
+    r.recibe||"",
+    r.obsdev||""
+  ]);
+  const wsData=[encabezados,...filas];
+  const ws=XLSX.utils.aoa_to_sheet(wsData);
+  ws["!cols"]=[{wch:18},{wch:13},{wch:22},{wch:18},{wch:30},{wch:28},{wch:22},{wch:14},{wch:13},{wch:16},{wch:22},{wch:28}];
+  const colores={Devuelto:"FF85E89D",Alerta:"FFFFA07A",Vencido:"FFFF8C8C",Pendiente:"FFFFFFB347"};
+  filas.forEach((fila,i)=>{
+    const estado=fila[7];
+    const color=colores[estado]||"FFFFFFFF";
+    const row=i+2;
+    for(let c=0;c<encabezados.length;c++){
+      const cellRef=XLSX.utils.encode_cell({r:row-1,c});
+      if(!ws[cellRef])ws[cellRef]={v:fila[c]||"",t:"s"};
+      ws[cellRef].s={fill:{fgColor:{rgb:color}},border:{bottom:{style:"thin",color:{rgb:"FFCCCCCC"}}}};
+    }
+  });
+  for(let c=0;c<encabezados.length;c++){
+    const cellRef=XLSX.utils.encode_cell({r:0,c});
+    if(!ws[cellRef])ws[cellRef]={v:encabezados[c],t:"s"};
+    ws[cellRef].s={font:{bold:true,color:{rgb:"FFFFFFFF"}},fill:{fgColor:{rgb:"FF1A3A5C"}},alignment:{horizontal:"center"}};
+  }
+  XLSX.utils.book_append_sheet(wb,ws,"Remitos");
+  const wbChof=XLSX.utils.book_new();
+  const wsRef=XLSX.utils.aoa_to_sheet([["Choferes activos"],,...choferes.map(c=>[c])]);
+  wsRef["!cols"]=[{wch:30}];
+  XLSX.utils.book_append_sheet(wb,wsRef,"Choferes");
+  const wsVeh=XLSX.utils.aoa_to_sheet([["Vehiculos activos"],,...vehiculos.map(v=>[v])]);
+  wsVeh["!cols"]=[{wch:30}];
+  XLSX.utils.book_append_sheet(wb,wsVeh,"Vehiculos");
+  XLSX.writeFile(wb,"remitos_signoplast_"+HOY+".xlsx");
+}
+
+function exportarCSV(){
+  const cols=['N Remito','Fecha salida','Chofer','Vehiculo','Cliente','Direccion','Observaciones','Estado','Dias','Fecha devolucion','Firmado por','Obs devolucion'];
+  const rows=remitos.map(r=>[r.num,r.fecha,r.chofer,r.vehiculo,r.cliente,r.dir,r.obs,estadoEf(r),dias(r.fecha),r.fdev,r.recibe,r.obsdev].map(v=>'"'+(v||'').toString().replace(/"/g,'""')+'"').join(','));
+  const csv='\uFEFF'+[cols.join(','),...rows].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='remitos_signoplast_'+HOY+'.csv';a.click();
+}
+function abrir(id){document.getElementById(id).classList.add('open');}
+function cerrar(id){document.getElementById(id).classList.remove('open');}
+
+setInterval(()=>{if(configurado())cargarDatos();},60000);
+cargarDatos();
+initOperador();
+// Cerrar modales al hacer clic fuera - EXCEPTO formularios de carga
+
+// ─── OPERADORES ────────────────────────────────────────────────
+let operadorActual = '';
+let opSeleccionado = '';
+
+function initOperador(){
+  const saved = localStorage.getItem('sp_operador');
+  if(saved){
+    operadorActual = saved;
+    mostrarBadgeOp();
+  } else {
+    mostrarModalOp();
+  }
+}
+
+function mostrarModalOp(){
+  renderGridOp();
+  document.getElementById('modalOperador').style.display='flex';
+}
+
+function cambiarOperador(){
+  opSeleccionado='';
+  document.getElementById('op-nuevo-div').style.display='none';
+  document.getElementById('op-nuevo-input').value='';
+  renderGridOp();
+  document.getElementById('modalOperador').style.display='flex';
+}
+
+function renderGridOp(){
+  // Obtener operadores de la lista de choferes/guardias guardados
+  const ops = JSON.parse(localStorage.getItem('sp_operadores')||'[]');
+  const grid = document.getElementById('op-grid');
+  if(ops.length===0){
+    grid.innerHTML='<div style="grid-column:1/-1;color:var(--text2);font-size:13px;padding:8px 0">No hay operadores registrados.<br>Usa el boton de abajo para agregar tu nombre.</div>';
+    return;
+  }
+  grid.innerHTML = ops.map(function(op){
+    const sel = op===opSeleccionado?' selected':'';
+    return '<button class="op-btn'+sel+'" onclick="seleccionarOp(this.dataset.nombre)" data-nombre="'+op+'">'
+      +'<i class="ti ti-user-circle"></i>'+op+'</button>';
+  }).join('');
+}
+
+function seleccionarOp(nombre){ if(typeof nombre !== 'string') nombre = nombre.dataset ? nombre.dataset.nombre : String(nombre);
+  opSeleccionado = nombre;
+  renderGridOp();
+}
+
+function mostrarNuevoOp(){
+  document.getElementById('op-nuevo-div').style.display='block';
+  document.getElementById('op-nuevo-input').focus();
+}
+
+function confirmarNuevoOp(){
+  const val = document.getElementById('op-nuevo-input').value.trim();
+  if(!val) return;
+  let ops = JSON.parse(localStorage.getItem('sp_operadores')||'[]');
+  if(!ops.includes(val)){ ops.push(val); ops.sort(); localStorage.setItem('sp_operadores', JSON.stringify(ops)); }
+  opSeleccionado = val;
+  document.getElementById('op-nuevo-div').style.display='none';
+  document.getElementById('op-nuevo-input').value='';
+  renderGridOp();
+}
+
+function confirmarOperador(){
+  // Si escribio nombre nuevo sin confirmar, procesarlo
+  const inputVal = document.getElementById('op-nuevo-input').value.trim();
+  if(inputVal) confirmarNuevoOp();
+  
+  const nombre = opSeleccionado;
+  if(!nombre){ alert('Selecciona o ingresa tu nombre para continuar.'); return; }
+  operadorActual = nombre;
+  localStorage.setItem('sp_operador', nombre);
+  document.getElementById('modalOperador').style.display='none';
+  mostrarBadgeOp();
+}
+
+function mostrarBadgeOp(){
+  const badge = document.getElementById('badge-op');
+  const lbl = document.getElementById('lbl-operador');
+  if(badge) badge.style.display='none'; // no usamos el badge extra
+  if(lbl) lbl.textContent = operadorActual;
+}
+
+function getOperador(){ return operadorActual || 'Desconocido'; }
+
+// Solo cerrar al click fuera en modales de consulta, nunca en formularios de carga
+['modalConfig','modalFirma','modalAlerta','modalDetalle'].forEach(function(id){
+  var el = document.getElementById(id);
+  if(el) el.addEventListener('click', function(e){
+    if(e.target === el) el.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
