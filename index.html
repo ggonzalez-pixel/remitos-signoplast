@@ -119,6 +119,9 @@ hr.sep{border:none;border-top:0.5px solid var(--border);margin:14px 0}
 @media(max-width:750px){.stats{grid-template-columns:repeat(2,1fr)}.form-2col{grid-template-columns:1fr}}
 @media print{.topbar,.toolbar,.section-header .btn,.config-banner{display:none!important}.container{padding:0}}
 
+/* Mayusculas en todos los campos de texto */
+input[type=text], textarea { text-transform: uppercase; }
+
 /* Modal operador */
 .modal-operador-bg{position:fixed;inset:0;background:rgba(15,25,40,0.85);z-index:500;display:flex;align-items:center;justify-content:center;}
 .modal-operador{background:#fff;border-radius:16px;padding:36px 32px;width:420px;max-width:95vw;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
@@ -476,7 +479,7 @@ function renderAbm(){
     vehiculos.map((v,i)=>'<div class="abm-item"><span class="abm-item-name">'+v+'</span><div class="abm-actions"><button class="btn btn-sm" onclick="editarAbm(\'vehiculos\','+i+')" title="Editar"><i class="ti ti-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="bajaAbm(\'vehiculos\','+i+')" title="Dar de baja"><i class="ti ti-trash"></i></button></div></div>').join('');
 }
 async function agregarChofer(){
-  const val=document.getElementById('nuevo-chofer').value.trim();
+  const val=document.getElementById('nuevo-chofer').value.trim().toUpperCase();
   if(!val)return;
   if(choferes.includes(val)){alert('Ya existe ese chofer.');return;}
   choferes.push(val);choferes.sort();
@@ -484,7 +487,7 @@ async function agregarChofer(){
   await guardarDatos();renderAbm();poblarSelectores();
 }
 async function agregarVehiculo(){
-  const val=document.getElementById('nuevo-vehiculo').value.trim();
+  const val=document.getElementById('nuevo-vehiculo').value.trim().toUpperCase();
   if(!val)return;
   if(vehiculos.includes(val)){alert('Ya existe ese vehiculo.');return;}
   vehiculos.push(val);vehiculos.sort();
@@ -614,12 +617,12 @@ function editarRemito(id){
   abrir('modalNuevo');
 }
 async function guardarRemito(){
-  const num=document.getElementById('f-num').value.trim();
+  const num=document.getElementById('f-num').value.trim().toUpperCase();
   const fecha=document.getElementById('f-fecha').value;
   const chofer=document.getElementById('f-chofer').value;
   const vehiculo=document.getElementById('f-vehiculo').value;
-  const cliente=document.getElementById('f-cliente').value.trim();
-  const dir=document.getElementById('f-dir').value.trim();
+  const cliente=document.getElementById('f-cliente').value.trim().toUpperCase();
+  const dir=document.getElementById('f-dir').value.trim().toUpperCase();
   let ok=true;
   ok=validarCampo('f-num','err-num',num!=='')&&ok;
   ok=validarCampo('f-fecha','err-fecha',fecha!=='')&&ok;
@@ -637,9 +640,9 @@ async function guardarRemito(){
   const btn=document.getElementById('btn-guardar');btn.disabled=true;
   if(editId){
     const r=remitos.find(x=>x.id===editId);
-    var ahoraE=new Date().toLocaleString('es-AR');var hist=r.historial||[];hist.push({accion:'Modificado',op:getOperador(),ts:ahoraE});Object.assign(r,{num,fecha,chofer,vehiculo,cliente,dir,obs:document.getElementById('f-obs').value.trim(),modificadoPor:getOperador(),modificadoTs:ahoraE,historial:hist});
+    var ahoraE=new Date().toLocaleString('es-AR');var hist=r.historial||[];hist.push({accion:'Modificado',op:getOperador(),ts:ahoraE});Object.assign(r,{num,fecha,chofer,vehiculo,cliente,dir,obs:document.getElementById('f-obs').value.trim().toUpperCase(),modificadoPor:getOperador(),modificadoTs:ahoraE,historial:hist});
   }else{
-    var ahora=new Date().toLocaleString('es-AR');remitos.push({id:'r'+Date.now(),num,fecha,chofer,vehiculo,cliente,dir,obs:document.getElementById('f-obs').value.trim(),estado:'Pendiente',fdev:'',recibe:'',obsdev:'',fechaReg:HOY,creadoPor:getOperador(),creadoTs:ahora,historial:[{accion:'Creado',op:getOperador(),ts:ahora}]});
+    var ahora=new Date().toLocaleString('es-AR');remitos.push({id:'r'+Date.now(),num,fecha,chofer,vehiculo,cliente,dir,obs:document.getElementById('f-obs').value.trim().toUpperCase(),estado:'Pendiente',fdev:'',recibe:'',obsdev:'',fechaReg:HOY,creadoPor:getOperador(),creadoTs:ahora,historial:[{accion:'Creado',op:getOperador(),ts:ahora}]});
   }
   await guardarDatos();renderTabla();cerrar('modalNuevo');btn.disabled=false;
 }
@@ -657,7 +660,7 @@ async function confirmarFirma(){
   const fdev=document.getElementById('f-fdev').value;
   if(!fdev){alert('Ingresar la fecha de devolucion.');return;}
   const r=remitos.find(x=>x.id===firmaId);
-  var ahoraF=new Date().toLocaleString('es-AR');var histF=r.historial||[];histF.push({accion:'Firma registrada',op:getOperador(),ts:ahoraF});r.estado='Devuelto';r.fdev=fdev;r.recibe=document.getElementById('f-recibe').value.trim();r.obsdev=document.getElementById('f-obsdev').value.trim();r.firmadoRegistradoPor=getOperador();r.historial=histF;
+  var ahoraF=new Date().toLocaleString('es-AR');var histF=r.historial||[];histF.push({accion:'Firma registrada',op:getOperador(),ts:ahoraF});r.estado='Devuelto';r.fdev=fdev;r.recibe=document.getElementById('f-recibe').value.trim().toUpperCase();r.obsdev=document.getElementById('f-obsdev').value.trim().toUpperCase();r.firmadoRegistradoPor=getOperador();r.historial=histF;
   await guardarDatos();renderTabla();cerrar('modalFirma');
 }
 function abrirAlerta(id){
@@ -673,7 +676,7 @@ async function confirmarAlerta(){
   const det=document.getElementById('f-detallealer').value.trim();
   if(!tipo||!det){alert('Completar tipo y detalle.');return;}
   const r=remitos.find(x=>x.id===alertaId);
-  var ahoraA=new Date().toLocaleString('es-AR');var histA=r.historial||[];histA.push({accion:'Alerta registrada',op:getOperador(),ts:ahoraA});r.estado='Alerta';r.obsdev=tipo+': '+det;r.alertaRegistradaPor=getOperador();r.historial=histA;
+  var ahoraA=new Date().toLocaleString('es-AR');var histA=r.historial||[];histA.push({accion:'Alerta registrada',op:getOperador(),ts:ahoraA});r.estado='Alerta';r.obsdev=(tipo+': '+det).toUpperCase();r.alertaRegistradaPor=getOperador();r.historial=histA;
   await guardarDatos();renderTabla();cerrar('modalAlerta');
 }
 async function eliminarRemito(id){
