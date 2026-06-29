@@ -778,7 +778,7 @@ function exportarCSV(){
 function abrir(id){document.getElementById(id).classList.add('open');}
 function cerrar(id){document.getElementById(id).classList.remove('open');}
 
-setInterval(()=>{if(configurado())cargarDatos();},60000);
+setInterval(()=>{if(configurado())cargarDatos();},1800000);
 cargarDatos();
 initOperador();
 // Cerrar modales al hacer clic fuera - EXCEPTO formularios de carga
